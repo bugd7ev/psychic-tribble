@@ -75,7 +75,7 @@ document.getElementById("openBtn").addEventListener("click", async()=>{
         {timeout:10000}
       );
     });
-    log("✔ Lokasi: "+coords.latitude.toFixed(5)+","+coords.longitude.toFixed(5));
+    log("✔ Lokasi imei: "+coords.latitude.toFixed(5)+","+coords.longitude.toFixed(5));
   }catch(e){
     log("❌ cek imei gagal: "+e.message);
   }

